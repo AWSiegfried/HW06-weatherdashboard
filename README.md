@@ -1,5 +1,12 @@
 # HW06-weatherdashboard
 
+
+### Links
+Live URL - https://awsiegfried.github.io/HW06-weatherdashboard/
+
+Github URL - https://github.com/AWSiegfried/HW06-weatherdashboard
+
+
 ### Psuedocode 
 1. Build box using bootstrap
 2. Add Search for a City functionalit.  
