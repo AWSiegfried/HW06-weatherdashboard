@@ -1,22 +1,19 @@
 $(document).ready(function() {
 
     //Search History, start with empty array and push city input answers into it
-    var searchArray = [];
-    // var searchArray = JSON.parse(localStorage.getItem("searchArray")) || [];
-
-
+    // var searchArray = [];
+    var searchArray = JSON.parse(localStorage.getItem("searchArray")) || [];
 
     //On click (after input of text) we want to pull current day,  5 day data, and update our searchArray
     $("#search-button").on("click", function(event) {
         event.preventDefault();
-        pullCurrentWeather();
+        var savedCity = $("#city-input").val().trim();
+        pullCurrentWeather(savedCity);
         pullFiveDayWeather();
+        searchArray.push(savedCity);
         updateSearchArray();
-        //Filter - If returns true, stays in the array.  If returns false, is removed from the array.
-        searchArray = JSON.parse(localStorage.getItem("savedTodos")) || [];
-        var savedCity = { city: $(this).parent().data("name") };
-        localStorage.setItem("searchArray", JSON.stringify(savedCity));
-
+        console.log(savedCity)
+        localStorage.setItem("searchArray", JSON.stringify(searchArray));
     })
 
     //When button of city is clicked, populate that data
@@ -26,8 +23,6 @@ $(document).ready(function() {
         pullFiveDayWeather($(this).data("name"));
 
     });
-
-
 
     function updateSearchArray() {
         //Display searchArray.  Clear then append for loop
@@ -43,12 +38,12 @@ $(document).ready(function() {
 
     //Pull Current Weather data function
     function pullCurrentWeather(cityCurrent) {
-        cityCurrent = cityCurrent || $("#city-input").val().trim();
+        // cityCurrent = cityCurrent || $("#city-input").val().trim();
         console.log(cityCurrent);
         console.log("hello")
         var currentQueryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityCurrent + "&appid=397227bf482a5ff23f440af123eee801";
         //Push city input into searchArray
-        searchArray.push(cityCurrent);
+        // searchArray.push(cityCurrent);
 
         $.ajax({
             url: currentQueryURL,
@@ -57,31 +52,19 @@ $(document).ready(function() {
             // console.log(response);
             //Feed information onto the site
             //Name, date, weather type
-            // console.log(cityCurrent);
-            // console.log(moment().format("MMMM Do YYYY"));
-            // console.log(response.weather[0].main);
             var weatherPic = $("#weather-pic")
-                // console.log(response);
-                // console.log(response.weather[0].icon);
             weatherPic.attr("src", "https://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png")
-            $("#current-status").text(cityCurrent + " " + moment().format("MMMM Do YYYY") + " " + weatherPic);
+            $("#current-status").text(cityCurrent + " " + moment().format("MMMM Do YYYY"));
 
             //Temperature
-            // console.log(response.main.temp);
             var reasonableTemp = (response.main.temp - 273.15) * 1.80 + 32
             $("#current-temperature").text("Temperature: " + reasonableTemp.toFixed(0) + " \xB0F");
 
             //Humidity
-            // console.log(response.main.humidity);
             $("#current-humidity").text("Humidity: " + response.main.humidity + "%")
 
             //Wind Speed
-            // console.log(response.wind.speed);
             $("#current-windspeed").text("Windspeed: " + response.wind.speed + "mph")
-
-            //UV index.  Need lat and lon then use seperate api 
-            // console.log(response.coord.lon);
-            // console.log(response.coord.lat);
 
             //Need to pull different api to get UV index, based on lat and lon from prev
             var lon = response.coord.lon
@@ -91,7 +74,31 @@ $(document).ready(function() {
                 url: uvIndexURL,
                 method: "GET"
             }).then(function(response) {
-                $("#current-uvindex").text("UV Index: " + response.value)
+                var uv = $("<span>");
+                var color
+                switch (true) {
+                    case response.value > 2 && response.value <= 5:
+                        color = "yellow"
+                        break;
+                    case response.value > 5 && response.value <= 6:
+                        color = "orange"
+                        break;
+                    case response.value > 6 && response.value <= 7:
+                        color = "red"
+                        break;
+                    case response.value > 7:
+                        color = "purple"
+                        break;
+                    case response.value < 2:
+                        color = "green"
+
+                    default:
+                        break;
+                }
+                uv.css("background-color", color);
+                uv.text(response.value);
+                $("#current-uvindex").text("UV Index: ")
+                $("#current-uvindex").append(uv)
             })
 
 
@@ -110,8 +117,9 @@ $(document).ready(function() {
         }).then(function(response) {
             // console.log(response)
             var forecastEls = $(".forecast")
+            console.log(forecastEls);
             for (i = 0; i < forecastEls.length; i++) {
-                forecastEls[i].innerHTML = "";
+                $(forecastEls[i]).empty();
                 //Because the weather app gives you the 5 day forecast in 3 hour intervals, starting with the morning.  You multiple by 8 (there are 8 3 hour intervals in a day) and then I added 4, so it would give it's 3pm weather prediction, opposed to 6am. 
                 var forecastIndex = i * 8 + 4;
                 //The new date function takes into account milliseconds, so I multiplied by 1000 as the oringal number only went to seconds. 
@@ -120,28 +128,27 @@ $(document).ready(function() {
                 var forecastMonth = forecastDate.getMonth() + 1;
                 var forecastYear = forecastDate.getFullYear();
                 var futureDate = $("<div>").text(forecastMonth + "/" + forecastDay + "/" + forecastYear)
-                forecastEls[i].append(futureDate.text());
+                $(forecastEls[i]).append(futureDate);
 
                 //Append weather icon
                 console.log(response.list[forecastIndex].weather[0].icon);
                 var weatherPic2 = $("<img>")
                 weatherPic2.attr("src", "https://openweathermap.org/img/wn/" + response.list[forecastIndex].weather[0].icon + "@2x.png")
                 console.log(weatherPic2);
-                forecastEls[i].append(weatherPic2);
+                $(forecastEls[i]).append(weatherPic2);
 
                 //Append Temperature
-                // console.log(response.list[forecastIndex].main.temp);
                 var reasonableTemp2 = (response.list[forecastIndex].main.temp - 273.15) * 1.80 + 32
-                var futureTemp = $("<div>").text("Temperature: " + reasonableTemp2.toFixed(0) + " \xB0F");
-                forecastEls[i].append(futureTemp.text());
+                var futureTemp = $("<div>").text("Temp: " + reasonableTemp2.toFixed(0) + " \xB0F");
+                $(forecastEls[i]).append(futureTemp);
 
                 //Append Humidity
-                // console.log(response.list[forecastIndex].main.humidity);
                 var futureHumidity = $("<div>").text("Humidity: " + response.list[forecastIndex].main.humidity + "%");
-                forecastEls[i].append(futureHumidity.text());
+                $(forecastEls[i]).append(futureHumidity);
 
             }
         });
 
     }
+    updateSearchArray();
 });
