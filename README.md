@@ -1,10 +1,29 @@
 # HW06-weatherdashboard
 
+### Overview
+The purpose of this assignment was to create a site that allows the user to input a city and spit out two different data sets (one for the current weather status and one for the 5 day forecast).  The site was also to save their search results to the local storage so that when they reload the page it saves their pre-searched cities. I used three APIs from Open Weather Map (links below).  I had to use three because the current weather, 5-day forecast and UV index all utilize separate APIs (links below).  One poorly optimized facet of the pulling of the UV index.  Because it requires the latitude and longitude of the city to run, it required and AJAX call inside of another AJAX call, which then makes the site slower.
+
+If I had more time, I'd fix:
+1. If they enter a city that doesn't exist in the APIs dataset, don't add the button (that then pulls no information). 
+2. Don't add duplicate button if that city already exists. 
+
+
+### Used APIs
+Current Weather - https://openweathermap.org/current
+
+5-day forecast - https://openweathermap.org/forecast5
+
+UV Index - https://openweathermap.org/api/uvi 
+
 
 ### Links
 Live URL - https://awsiegfried.github.io/HW06-weatherdashboard/
 
 Github URL - https://github.com/AWSiegfried/HW06-weatherdashboard
+
+
+### Screenshot
+![screenshot](/Assets/weatherdashboard.png?raw=true)
 
 
 ### Psuedocode 
