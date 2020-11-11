@@ -17,20 +17,6 @@ body {
     width: 100%;
 }
 
-#main-section {
-    /* height: 90%;
-    width: 100%;
-    background-color: blue; */
-}
-
-#left-section {
-    /* background-color: grey;
-    height: 100%;
-    width: 100%; */
-}
-
-#right-section {
-    /* height: 100%;
-    width: 100%;
-    background-color: rgb(213, 0, 0); */
+#current-status {
+    font-size: 30px;
 }
